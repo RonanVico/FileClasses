@@ -127,12 +127,21 @@ createFile = False
         raiseErr (err_NotFileName)
     End If
     
-    
-    Dim fl As Object
-    Set fl = CreateObject("Scripting.FileSystemObject").CreateTextFile(filename_, True, True)
-    fl.writeline (content_)
-    fl.Close
-    createFile = True
+'    Dim fl As Object
+'    Set fl = CreateObject("Scripting.FileSystemObject").CreateTextFile(filename_, True, True)
+'    fl.writeline (content_)
+'    fl.Close
+'
+Dim OutputFileNum, cell
+OutputFileNum = FreeFile
+  Open filename_ For Output Lock Write As #OutputFileNum
+  For Each cell In Split(content_, vbCrLf)
+    Print #OutputFileNum, cell
+  Next
+  Close OutputFileNum
+  
+  
+createFile = True
     
 End Function
 
@@ -188,7 +197,7 @@ Public Sub InsertLine(line As String)
         raiseErr (CSVFileErrors.err_ColumnsNotMatch)
     End If
     
-    content_ = content_ & line & vbNewLine
+    content_ = content_ & line & vbCrLf
 End Sub
 
 Public Function getRstQueryData(ByVal query As String)
@@ -252,6 +261,8 @@ Public Function getError() As String
             getError = "Separator undefined , is just possible to use ',' ';' '|' "
         Case CSVFileErrors.err_ChangeSeparatorError
             getError = "Cannot change separator if you inserted data with the character specified into file for secure purposes"
+        Case CSVFileErrors.err_FileAlreadExist
+            getError = "File Already Exists and cannot be Deleted because is open"
     End Select
 End Function
 
